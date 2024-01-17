@@ -1,44 +1,63 @@
 const lienzo = document.querySelector('#lienzo');
 const ctx = lienzo.getContext('2d');
 
-const snake = []
-ctx.fillStyle = "black";
-ctx.fillRect(50, 30, 20, 20);
 
-ctx.font = "25px Serif";
-ctx.fillText("✨", 100, 100);
+let posX = 2;
+let posY = 1;
+let direction = 1;
 
-const head = {
-    x: 2,
-    y: 1,
-    pinta: function(){
-        ctx.font = "25px Serif";
-        ctx.fillText("🎧", this.x * 20, this.y * 20);
+const bgSound = new Audio('./game-music-loop-19-153393.mp3');
+const eating = new Audio('./eating-sound-effect-36186.mp3');
+const death = new Audio('./game-over-arcade-6435.mp3');
+
+function init(){
+    posX = 2;
+    posY = 1;
+    direction = 1;
+
+    bgSound.play();
+
+    const snake = []
+    ctx.fillStyle = "black";
+    ctx.fillRect(50, 30, 20, 20);
+    
+    ctx.font = "25px Serif";
+    ctx.fillText("✨", 100, 100);
+    
+    const head = {
+        x: 2,
+        y: 1,
+        pinta: function(){
+            ctx.font = "25px Serif";
+            ctx.fillText("🐰", this.x * 20, this.y * 20);
+        }
     }
+    
+    snake.push(head);
+    snake.push({
+        x: 1,
+        y: 1,
+        xNext: 2,
+        yNext: 1,
+        pinta: function(){
+            ctx.font = "25px Serif";
+            ctx.fillText("🥕", this.x * 20, this.y * 20);
+        }
+    });
+    
+    snake.push({
+        x: 0,
+        y: 1,
+        xNext: 1,
+        yNext: 1,
+        pinta: function(){
+            ctx.font = "25px Serif";
+            ctx.fillText("🥕", this.x * 20, this.y * 20);
+        }
+    });
+return snake;    
 }
-
-snake.push(head);
-snake.push({
-    x: 1,
-    y: 1,
-    xNext: 2,
-    yNext: 1,
-    pinta: function(){
-        ctx.font = "25px Serif";
-        ctx.fillText("🎵", this.x * 20, this.y * 20);
-    }
-});
-
-snake.push({
-    x: 0,
-    y: 1,
-    xNext: 1,
-    yNext: 1,
-    pinta: function(){
-        ctx.font = "25px Serif";
-        ctx.fillText("🎵", this.x * 20, this.y * 20);
-    }
-});
+let snake = init();
 
 function nextMove(){
     snake.forEach((item, index) =>{
@@ -58,28 +77,37 @@ const food = {
     x: 0,
     y: 0,
     pinta: function(){
-        ctx.fillText('🎵', this.x * 20, this.y * 20);
+        ctx.fillText('🟠', this.x * 20, this.y * 20);
     },
     random: function(){
-        this.x = Math.floor(Math.random() * 30);
-        this.y = Math.ceil(Math.random() * 20);
+        this.x = Math.floor(Math.random() * 25);
+        this.y = Math.ceil(Math.random() * 17);
     }
 }
 
 function checkEat(){
     if(snake[0].x === food.x && snake[0].y === food.y){
+        eating.play();
         snake.push({ ...snake[1]});
         food.random();
     }
 }
 
-let posX = 0;
-let posY = 1;
-let direction = 1;
+
+function gameOver(){
+    for (let i=1; i<snake.length;i++){
+        if(snake[0].x === snake [i].x && snake[0].y === snake [i].y){
+            return true;
+        }
+    }
+    return false;
+}
+
+
 
 food.random();
 setInterval(() => {
-    ctx.fillRect(0, 0, 600, 400);
+    ctx.fillRect(0, 0, 500, 340);
 
     
     food.pinta();
@@ -87,15 +115,21 @@ setInterval(() => {
 
     checkEat();
 
+    if(gameOver()){
+        death.play();
+        alert('perdiste');
+        snake = init();
+    }
+
     if(direction === 1) posX++;
     else if(direction === 2) posY++;
     else if(direction === 3) posX--;
     else posY--;
 
-    if(posX > 29) posX = 0;
-    else if(posX <= 0) posX = 30;
-    if(posY > 20) posY = 1;
-    else if(posY < 1) posY = 20;
+    if(posX > 24) posX = 0;
+    else if(posX <= 0) posX = 24;
+    if(posY > 17) posY = 1;
+    else if(posY < 1) posY = 17;
 
     nextMove();
 
